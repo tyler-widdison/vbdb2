@@ -21,7 +21,6 @@
     "@cloudflare/workers-types": "^4.20251004.0",
     "@mdi/font": "^7.4.47",
     "@nuxt/fonts": "^0.11.4",
-    "@nuxtjs/seo": "^3.2.2",
     "nitro-cloudflare-dev": "^0.2.2",
     "sass-embedded": "^1.89.2",
     "typescript": "^5.8.3",
