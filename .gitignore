@@ -22,3 +22,7 @@ logs
 .env
 .env.*
 !.env.example
+
+# Exe
+opencode.exe
+Alacritty-v0.15.1-portable.exe
