@@ -64,7 +64,7 @@ export default defineNuxtConfig({
   },
 
   css: [],
-  modules: ["@nuxt/fonts", "vuetify-nuxt-module", "@nuxtjs/seo"],
+  modules: ["@nuxt/fonts", "vuetify-nuxt-module"],
 
   vuetify: {
     moduleOptions: {
