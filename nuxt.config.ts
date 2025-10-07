@@ -1,7 +1,7 @@
 export default defineNuxtConfig({
   compatibilityDate: "2025-07-15",
   devtools: { enabled: true },
-  ssr: false,
+  ssr: true,
 
   features: {
     inlineStyles: false,
@@ -24,33 +24,12 @@ export default defineNuxtConfig({
       htmlAttrs: {
         lang: "en",
       },
-      link: [{ rel: "icon", type: "image/x-icon", href: "/favicon.ico" }],
+      link: [
+        { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
+        { rel: "icon", type: "image/x-icon", href: "/favicon.ico" },
+        { rel: "apple-touch-icon", sizes: "180x180", href: "/apple-touch-icon.png" }
+      ],
     },
-  },
-
-  site: {
-    url: "https://volleyballdatabased.com",
-    name: "College Volleyball Database",
-    description:
-      "Your complete source for college volleyball scores, schedules, team information, and latest news across NCAA D-I, D-II, D-III, NAIA, NJCAA, and CCCAA divisions.",
-    defaultLocale: "en",
-  },
-
-  ogImage: {
-    enabled: true,
-  },
-
-  sitemap: {
-    enabled: true,
-    strictNuxtContentPaths: true,
-  },
-
-  robots: {
-    enabled: true,
-  },
-
-  schemaOrg: {
-    enabled: true,
   },
 
   build: {

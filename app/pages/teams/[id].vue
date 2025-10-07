@@ -3,28 +3,51 @@ import { useDisplay } from "vuetify";
 const route = useRoute();
 const teamId = computed(() => route.params.id as string);
 
-const { teams, fetchTeams } = useTeams();
-const { results, fetchResults, getResultsByTeam } = useResults();
-const { schedule, fetchSchedule, getScheduleByTeam } = useSchedule();
+const teamDivision = ref('D-I');
+
+const allDivisions = ['D-I', 'D-II', 'D-III', 'NAIA', 'NJCAA D-1', 'NJCAA D-2', 'NJCAA D-3', 'CCCAA'];
+const teamsComposables = allDivisions.map(div => ({
+  division: div,
+  composable: useTeams(ref(div))
+}));
+
+const resultsComposable = useResults(teamDivision);
+const scheduleComposable = useSchedule();
 const { smAndDown } = useDisplay();
 
-await fetchTeams();
-await fetchResults();
-await fetchSchedule();
+await Promise.all([
+  ...teamsComposables.map(tc => tc.composable.fetchTeams()),
+  scheduleComposable.fetchSchedule()
+]);
+
+const allTeams = computed(() => {
+  return teamsComposables.flatMap(tc => tc.composable.teams.value || []);
+});
 
 const team = computed(() => {
-  if (!teams.value) return null;
-  return teams.value.find((t) => t.team_id === teamId.value);
+  return allTeams.value.find((t) => t.team_id === teamId.value) || null;
+});
+
+if (team.value) {
+  teamDivision.value = team.value.division;
+  await resultsComposable.fetchResults();
+}
+
+watch(team, async (newTeam) => {
+  if (newTeam && newTeam.division !== teamDivision.value) {
+    teamDivision.value = newTeam.division;
+    await resultsComposable.fetchResults();
+  }
 });
 
 const teamResults = computed(() => {
-  if (!results.value || !teamId.value) return [];
-  return getResultsByTeam(teamId.value);
+  if (!resultsComposable.results.value || !teamId.value) return [];
+  return resultsComposable.getResultsByTeam(teamId.value);
 });
 
 const teamSchedule = computed(() => {
-  if (!schedule.value || !teamId.value) return [];
-  return getScheduleByTeam(teamId.value);
+  if (!scheduleComposable.schedule.value || !teamId.value) return [];
+  return scheduleComposable.getScheduleByTeam(teamId.value);
 });
 
 const upcomingMatches = computed(() => {
@@ -34,13 +57,33 @@ const upcomingMatches = computed(() => {
     teamResults.value.map(match => match.match_id)
   );
   
-  return teamSchedule.value.filter(
-    scheduleMatch => !resultMatchIds.has(scheduleMatch.match_id)
+  const resultMatchKeys = new Set(
+    teamResults.value.map(match => {
+      const date = match.date.split(' ')[0];
+      return `${match.team_1_id}-${match.team_2_id}-${date}`;
+    })
   );
+  
+  return teamSchedule.value.filter(scheduleMatch => {
+    if (resultMatchIds.has(scheduleMatch.match_id)) {
+      return false;
+    }
+    
+    const date = scheduleMatch.date.split(' ')[0];
+    const key1 = `${scheduleMatch.team_1_id}-${scheduleMatch.team_2_id}-${date}`;
+    const key2 = `${scheduleMatch.team_2_id}-${scheduleMatch.team_1_id}-${date}`;
+    
+    return !resultMatchKeys.has(key1) && !resultMatchKeys.has(key2);
+  });
 });
 
 const allMatches = computed(() => {
-  return [...teamResults.value, ...upcomingMatches.value];
+  const combined = [...teamResults.value, ...upcomingMatches.value];
+  return combined.sort((a, b) => {
+    const dateA = new Date(a.date);
+    const dateB = new Date(b.date);
+    return dateB.getTime() - dateA.getTime();
+  });
 });
 
 const teamRecord = computed(() => {
@@ -87,6 +130,12 @@ useHead({
       }),
     },
   ],
+  link: [
+    {
+      rel: "canonical",
+      href: computed(() => `https://volleyballdatabased.com/teams/${teamId.value}`),
+    },
+  ],
   script: [
     {
       type: "application/ld+json",
@@ -105,6 +154,16 @@ useHead({
       }),
     },
   ],
+});
+
+useSeoMeta({
+  ogTitle: seoTitle,
+  ogDescription: seoDescription,
+  ogType: "website",
+  ogUrl: computed(() => `https://volleyballdatabased.com/teams/${teamId.value}`),
+  twitterCard: "summary_large_image",
+  twitterTitle: seoTitle,
+  twitterDescription: seoDescription,
 });
 </script>
 

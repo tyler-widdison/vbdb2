@@ -25,14 +25,23 @@ export interface LiveMatch {
   time: string;
 }
 
-export const useLive = () => {
+export const useLive = (division: Ref<string> = ref('D-I')) => {
+  const url = computed(() => `https://api.volleyballdatabased.com/live?division=${division.value}`);
+  
   const {
     data: matches,
     error,
     refresh,
-  } = useFetch<LiveMatch[]>("https://api.volleyballdatabased.com/live", {
-    key: "live-matches",
+  } = useFetch<LiveMatch[]>(url, {
+    key: computed(() => `live-matches-${division.value}`),
     lazy: true,
+    server: true,
+    dedupe: "defer",
+    deep: false,
+    getCachedData(key) {
+      return useNuxtApp().payload.data[key] || useNuxtApp().static.data[key];
+    },
+    watch: [division],
   });
 
   const fetchLiveMatches = async (): Promise<LiveMatch[]> => {

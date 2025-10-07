@@ -46,6 +46,12 @@ useHead({
         "volleyball schedule, college volleyball schedule, NCAA volleyball schedule, upcoming volleyball games, volleyball calendar",
     },
   ],
+  link: [
+    {
+      rel: "canonical",
+      href: "https://volleyballdatabased.com/schedule",
+    },
+  ],
   script: [
     {
       type: "application/ld+json",
@@ -58,6 +64,16 @@ useHead({
       }),
     },
   ],
+});
+
+useSeoMeta({
+  ogTitle: "Volleyball Schedule - College Volleyball Database",
+  ogDescription: "Browse upcoming college volleyball schedules and games for NCAA, NAIA, NJCAA, and CCCAA divisions. Complete schedule with dates and times.",
+  ogType: "website",
+  ogUrl: "https://volleyballdatabased.com/schedule",
+  twitterCard: "summary_large_image",
+  twitterTitle: "Volleyball Schedule - College Volleyball Database",
+  twitterDescription: "Browse upcoming college volleyball schedules and games for NCAA, NAIA, NJCAA, and CCCAA divisions.",
 });
 </script>
 

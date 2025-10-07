@@ -17,17 +17,18 @@
 ## Architecture
 
 - **SSR Enabled**: All data fetched server-side for SEO
-- **Composables**: `useTeams`, `useLive`, `useResults`, `useSchedule`, `useNews`, `useVolleyballSeo` for shared state
+- **Composables**: `useTeams`, `useLive`, `useResults`, `useSchedule`, `useNews`, `useVolleyballSeo` for shared state; all accept division parameter (default: 'D-I')
+- **Division-based API**: Backend uses `?division={division}` parameter; composables fetch data per division for performance
 - **Caching**: `useFetch` with keys for automatic caching; optimized for large datasets with dedupe, getCachedData, and deep: false
 - **Auto-refresh**: Live matches refresh every 30 seconds client-side
-- **Filters**: Multi-select for Division/Conference/Team with cascading logic; work across live, results, and schedule pages
+- **Filters**: Multi-select for Division/Conference/Team with cascading logic; work across live, results, and schedule pages; when single division selected, composables fetch that division's data
 
 ## Code Style
 
 - **TypeScript**: Strict mode enabled, use `noUncheckedIndexedAccess`
 - **Imports**: Use Nuxt auto-imports; alias `~` or `@` for app directory
 - **Components**: Place in `components/` for auto-import
-- **Composables**: Place in `composables/` for auto-import; use `useFetch` with `lazy: true`, `server: true`, and unique keys
+- **Composables**: Place in `composables/` for auto-import; use `useFetch` with `lazy: true`, `server: true`, and unique keys; accept division parameter as `Ref<string>` with default 'D-I'
 - **Vue SFC**: Use `<script setup lang="ts">` with Composition API
 - **Module**: ESNext with `module: "preserve"`
 - **Naming**: kebab-case for files/components, camelCase for functions/variables
@@ -36,18 +37,21 @@
 
 ## SEO Requirements
 
+- **SSR Enabled**: Server-side rendering enabled for proper SEO and faster initial page loads
 - **Meta Tags**: Every page must have title, description, keywords via `useHead()`
+- **Open Graph**: Use `useSeoMeta()` for Open Graph and Twitter Card tags on all pages
+- **Canonical URLs**: Add canonical link tags via `useHead({ link: [{ rel: 'canonical', href: ... }] })`
 - **Structured Data**: Add JSON-LD via `useHead({ script: [{ type: 'application/ld+json', innerHTML: ... }] })`
 - **Keywords**: Use `useVolleyballSeo()` composable for consistent SEO metadata
 - **Performance**: Shared fetch state, client-side filtering, lazy loading for fast Core Web Vitals
 
 ## Composables
 
-- **useTeams**: Fetches team data; provides filtering by division/conference
-- **useLive**: Fetches live matches; provides status detection (live/completed/upcoming) and filtering
-- **useResults**: Fetches historical match results; optimized for large datasets with shallow reactivity (deep: false)
-- **useSchedule**: Fetches upcoming match schedule; optimized for large datasets with shallow reactivity (deep: false)
-- **useNews**: Fetches news articles by division; provides division labels and logos
+- **useTeams(division: Ref<string> = ref('D-I'))**: Fetches team data for specific division via API; provides filtering by division/conference
+- **useLive(division: Ref<string> = ref('D-I'))**: Fetches live matches for specific division via API; provides status detection (live/completed/upcoming) and filtering
+- **useResults(division: Ref<string> = ref('D-I'))**: Fetches historical match results for specific division via API; optimized for large datasets with shallow reactivity (deep: false)
+- **useSchedule()**: Fetches all upcoming matches; provides division/conference/team filtering client-side; optimized for large datasets with shallow reactivity (deep: false)
+- **useNews()**: Fetches all news articles; provides division-based filtering, labels, and logos via getNewsByDivision method
 - **useVolleyballSeo**: Provides consistent SEO metadata for divisions, conferences, teams
 
 ## Components
@@ -69,7 +73,9 @@
 
 ## Performance Optimization
 
+- **Division-based Loading**: All composables accept division parameter; default to 'D-I' for fast initial load; fetch other divisions on-demand
 - **Large Datasets**: Use `useFetch` with `lazy: true`, `server: true`, `dedupe: "defer"`, `deep: false`, and `getCachedData`
-- **Client-side Filtering**: All filtering happens client-side after initial fetch to avoid redundant API calls
+- **Reactive Division Switching**: Watch division filter changes; when single division selected, update API division parameter to fetch only that division's data
+- **Client-side Filtering**: Conference/team filtering happens client-side after division fetch to avoid redundant API calls
 - **Pagination**: MatchCard paginates at 16 items per page (8 per column on desktop)
 - **Type Guards**: Use `isResultMatch()` and `isScheduleMatch()` patterns to safely distinguish between LiveMatch, ResultMatch, and ScheduleMatch types

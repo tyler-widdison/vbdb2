@@ -30,14 +30,16 @@ export interface ResultMatch {
   team_2_rank: number | null;
 }
 
-export const useResults = () => {
+export const useResults = (division: Ref<string> = ref('D-I')) => {
+  const url = computed(() => `https://api.volleyballdatabased.com/results?division=${division.value}`);
+  
   const {
     data: results,
     error,
     refresh,
     status,
-  } = useFetch<ResultMatch[]>("https://api.volleyballdatabased.com/results", {
-    key: "results-data",
+  } = useFetch<ResultMatch[]>(url, {
+    key: computed(() => `results-data-${division.value}`),
     lazy: true,
     server: true,
     dedupe: "defer",
@@ -45,6 +47,7 @@ export const useResults = () => {
     getCachedData(key) {
       return useNuxtApp().payload.data[key] || useNuxtApp().static.data[key];
     },
+    watch: [division],
   });
 
   const fetchResults = async (): Promise<ResultMatch[]> => {

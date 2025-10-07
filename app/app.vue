@@ -2,15 +2,13 @@
 import AppHeader from "./components/AppHeader.vue";
 
 useHead({
-  titleTemplate: '%s | VBDB',
-  meta: [
-    { name: 'theme-color', content: '#1976d2' },
-  ],
+  titleTemplate: "%s | VBDB",
+  meta: [{ name: "theme-color", content: "#1976d2" }],
 });
 
 useSeoMeta({
-  ogSiteName: 'College Volleyball Database',
-  twitterCard: 'summary_large_image',
+  ogSiteName: "College Volleyball Database",
+  twitterCard: "summary_large_image",
 });
 </script>
 

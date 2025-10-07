@@ -7,13 +7,37 @@ const {
   getDivisionLabel,
   getDivisionLogo,
 } = useNews();
-const { results, fetchResults } = useResults();
-const { schedule, fetchSchedule } = useSchedule();
-const { teams, fetchTeams } = useTeams();
 
-await Promise.all([fetchNews(), fetchResults(), fetchSchedule(), fetchTeams()]);
+const allDivisions = ['D-I', 'D-II', 'D-III', 'NAIA', 'NJCAA D-1', 'NJCAA D-2', 'NJCAA D-3', 'CCCAA'];
+
+const teamsComposables = allDivisions.map(div => ({
+  division: div,
+  composable: useTeams(ref(div))
+}));
+
+const resultsComposables = allDivisions.map(div => ({
+  division: div,
+  composable: useResults(ref(div))
+}));
+
+const { schedule, fetchSchedule } = useSchedule();
+
+await Promise.all([
+  fetchNews(),
+  ...teamsComposables.map(tc => tc.composable.fetchTeams()),
+  ...resultsComposables.map(rc => rc.composable.fetchResults()),
+  fetchSchedule()
+]);
 
 const divisions = ["1", "2", "3", "naia", "njcaa", "3c2asports"];
+
+const allTeams = computed(() => {
+  return teamsComposables.flatMap(tc => tc.composable.teams.value || []);
+});
+
+const allResults = computed(() => {
+  return resultsComposables.flatMap(rc => rc.composable.results.value || []);
+});
 
 const getDivisionStats = (division: string) => {
   const divisionMap: Record<string, string[]> = {
@@ -28,9 +52,9 @@ const getDivisionStats = (division: string) => {
   const divisionNames = divisionMap[division] || [];
 
   const teamsCount =
-    teams.value?.filter((t) => divisionNames.includes(t.division)).length || 0;
+    allTeams.value.filter((t) => divisionNames.includes(t.division)).length || 0;
   const matchesPlayed =
-    results.value?.filter(
+    allResults.value.filter(
       (r) =>
         divisionNames.includes(r.team_1_division) ||
         divisionNames.includes(r.team_2_division)

@@ -1,13 +1,23 @@
 <script setup lang="ts">
 import { useDisplay } from "vuetify";
 
-const { teams, fetchTeams, getDivisions, getAllConferences } = useTeams();
+const selectedApiDivision = ref("D-I");
+const { teams, fetchTeams, getDivisions, getAllConferences } =
+  useTeams(selectedApiDivision);
 const { smAndDown } = useDisplay();
 const search = ref("");
 const selectedDivisions = ref<string[]>([]);
 const selectedConferences = ref<string[]>([]);
 const currentPage = ref(1);
 const itemsPerColumn = 12;
+
+watch(selectedDivisions, (newDivisions) => {
+  if (newDivisions.length === 1 && newDivisions[0]) {
+    selectedApiDivision.value = newDivisions[0];
+  } else if (newDivisions.length === 0) {
+    selectedApiDivision.value = "D-I";
+  }
+});
 
 await fetchTeams();
 
@@ -81,6 +91,12 @@ useHead({
         "college volleyball teams, NCAA volleyball teams, volleyball team directory, volleyball team search, college volleyball roster",
     },
   ],
+  link: [
+    {
+      rel: "canonical",
+      href: "https://volleyballdatabased.com/teams",
+    },
+  ],
   script: [
     {
       type: "application/ld+json",
@@ -93,6 +109,16 @@ useHead({
       }),
     },
   ],
+});
+
+useSeoMeta({
+  ogTitle: "Volleyball Teams - College Volleyball Database",
+  ogDescription: "Explore college volleyball teams from NCAA D-I, D-II, D-III, NAIA, NJCAA, and CCCAA divisions. Search by team name, division, or conference.",
+  ogType: "website",
+  ogUrl: "https://volleyballdatabased.com/teams",
+  twitterCard: "summary_large_image",
+  twitterTitle: "Volleyball Teams - College Volleyball Database",
+  twitterDescription: "Explore college volleyball teams from NCAA D-I, D-II, D-III, NAIA, NJCAA, and CCCAA divisions.",
 });
 </script>
 
@@ -171,7 +197,7 @@ useHead({
                 >
                   {{ team.name }}
                 </div>
-                <div class="text-caption text-medium-emphasis">
+                <div class="text-caption text-grey">
                   {{ team.conference }} | {{ team.division }}
                 </div>
               </div>

@@ -10,12 +10,12 @@ useHead({
   meta: [
     { name: "description", content: seo.description },
     { name: "keywords", content: seo.keywords },
-    { property: "og:title", content: seo.title },
-    { property: "og:description", content: seo.description },
-    { property: "og:type", content: "website" },
-    { name: "twitter:card", content: "summary_large_image" },
-    { name: "twitter:title", content: seo.title },
-    { name: "twitter:description", content: seo.description },
+  ],
+  link: [
+    {
+      rel: "canonical",
+      href: `https://volleyballdatabased.com/division/${division}`,
+    },
   ],
   script: [
     {
@@ -29,6 +29,16 @@ useHead({
       }),
     },
   ],
+});
+
+useSeoMeta({
+  ogTitle: seo.title,
+  ogDescription: seo.description,
+  ogType: "website",
+  ogUrl: `https://volleyballdatabased.com/division/${division}`,
+  twitterCard: "summary_large_image",
+  twitterTitle: seo.title,
+  twitterDescription: seo.description,
 });
 </script>
 

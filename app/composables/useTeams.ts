@@ -8,9 +8,11 @@ export interface Team {
   avca_ranking: string | null
 }
 
-export const useTeams = () => {
-  const { data: teams, error, refresh, status } = useFetch<Team[]>('https://api.volleyballdatabased.com/teams', {
-    key: 'teams-data',
+export const useTeams = (division: Ref<string> = ref('D-I')) => {
+  const url = computed(() => `https://api.volleyballdatabased.com/teams?division=${division.value}`);
+  
+  const { data: teams, error, refresh, status } = useFetch<Team[]>(url, {
+    key: computed(() => `teams-data-${division.value}`),
     lazy: true,
     server: true,
     dedupe: 'defer',
@@ -18,6 +20,7 @@ export const useTeams = () => {
     getCachedData(key) {
       return useNuxtApp().payload.data[key] || useNuxtApp().static.data[key];
     },
+    watch: [division],
   })
 
   const fetchTeams = async (): Promise<Team[]> => {

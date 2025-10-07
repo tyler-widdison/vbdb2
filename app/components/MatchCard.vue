@@ -189,7 +189,7 @@ const formatMatch = (match: UnifiedMatch): FormattedMatch => {
 
   let formattedDate: string = match.date || "";
   if (formattedDate && formattedDate.includes(" ")) {
-    formattedDate = formattedDate.split(" ")[0];
+    formattedDate = formattedDate.split(" ")[0] || "";
   }
 
   return {
@@ -330,7 +330,7 @@ const getTeamAbbreviation = (teamName: string): string => {
           !smAndDown && colIndex === 1 ? 'pl-1' : '',
         ]"
       >
-        <v-card>
+        <v-card class="h-100">
           <v-card-title
             v-if="!hideHeader"
             class="d-flex align-center pa-3 bg-grey-darken-3"
@@ -342,7 +342,10 @@ const getTeamAbbreviation = (teamName: string): string => {
           </v-card-title>
 
           <div v-for="(item, index) in column" :key="index">
-            <div class="d-flex align-stretch pa-3">
+            <div
+              class="d-flex align-stretch pa-3"
+              :style="smAndDown ? '' : 'height: 120px'"
+            >
               <div class="d-flex align-center" style="flex: 1">
                 <div style="flex: 1">
                   <div class="d-flex align-center mb-2">
@@ -514,9 +517,9 @@ const getTeamAbbreviation = (teamName: string): string => {
                     </template>
                   </v-col>
 
-                  <v-col cols="auto" class="ml-3">
+                  <v-col cols="auto" class="ml-4">
                     <div class="text-right">
-                      <div class="text-caption text-medium-emphasis mb-1">
+                      <div class="text-caption text-medium-emphasis mb-1 pr-2">
                         {{ item.date }}
                       </div>
                       <v-chip

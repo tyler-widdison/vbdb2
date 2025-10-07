@@ -1,5 +1,11 @@
 <script setup lang="ts">
-const { fetchResults, filterResults, results, refresh } = useResults();
+const allDivisions = ['D-I', 'D-II', 'D-III', 'NAIA', 'NJCAA D-1', 'NJCAA D-2', 'NJCAA D-3', 'CCCAA'];
+
+const resultsComposables = allDivisions.map(div => ({
+  division: div,
+  composable: useResults(ref(div))
+}));
+
 const pageHeaderRef = ref();
 const loading = ref(false);
 
@@ -11,18 +17,44 @@ const selectedConference = computed(
 );
 const selectedTeam = computed(() => pageHeaderRef.value?.selectedTeam ?? []);
 
+const allResults = computed(() => {
+  return resultsComposables.flatMap(rc => rc.composable.results.value || []);
+});
+
 const filteredResults = computed(() => {
-  return filterResults(
-    selectedDivision.value,
-    selectedConference.value,
-    selectedTeam.value
-  );
+  let filtered = allResults.value;
+
+  if (selectedDivision.value && selectedDivision.value.length > 0) {
+    filtered = filtered.filter(
+      (match) =>
+        selectedDivision.value.includes(match.team_1_division) ||
+        selectedDivision.value.includes(match.team_2_division)
+    );
+  }
+
+  if (selectedConference.value && selectedConference.value.length > 0) {
+    filtered = filtered.filter(
+      (match) =>
+        selectedConference.value.includes(match.team_1_conference) ||
+        selectedConference.value.includes(match.team_2_conference)
+    );
+  }
+
+  if (selectedTeam.value && selectedTeam.value.length > 0) {
+    filtered = filtered.filter(
+      (match) =>
+        selectedTeam.value.includes(match.team_1_id) || 
+        selectedTeam.value.includes(match.team_2_id)
+    );
+  }
+
+  return filtered;
 });
 
 const loadResults = async () => {
   loading.value = true;
   try {
-    await fetchResults();
+    await Promise.all(resultsComposables.map(rc => rc.composable.fetchResults()));
   } finally {
     loading.value = false;
   }
@@ -46,6 +78,12 @@ useHead({
         "volleyball scores, college volleyball results, NCAA volleyball scores, volleyball game results, college volleyball box scores",
     },
   ],
+  link: [
+    {
+      rel: "canonical",
+      href: "https://volleyballdatabased.com/scores",
+    },
+  ],
   script: [
     {
       type: "application/ld+json",
@@ -59,6 +97,18 @@ useHead({
     },
   ],
 });
+
+useSeoMeta({
+  ogTitle: "Volleyball Scores & Results - College Volleyball Database",
+  ogDescription:
+    "View college volleyball scores and game results from NCAA, NAIA, NJCAA, and CCCAA divisions. Complete match scores, stats, and box scores.",
+  ogType: "website",
+  ogUrl: "https://volleyballdatabased.com/scores",
+  twitterCard: "summary_large_image",
+  twitterTitle: "Volleyball Scores & Results - College Volleyball Database",
+  twitterDescription:
+    "View college volleyball scores and game results from NCAA, NAIA, NJCAA, and CCCAA divisions.",
+});
 </script>
 
 <template>
@@ -66,7 +116,7 @@ useHead({
     <PageHeader
       ref="pageHeaderRef"
       title="Scores & Results"
-      :available-matches="results"
+      :available-matches="allResults"
       :title-caption="`${filteredResults.length} matches`"
     />
 
