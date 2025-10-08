@@ -10,10 +10,21 @@ export default defineNuxtConfig({
 
   nitro: {
     preset: "cloudflare-pages",
-    rollupConfig: {
-      output: {
-        inlineDynamicImports: true,
+    cloudflare: {
+      pages: {
+        routes: {
+          include: ['/*'],
+          exclude: ['/build/*', '/favicon.ico'],
+        },
       },
+    },
+    experimental: {
+      wasm: false,
+    },
+    minify: true,
+    compatibilityDate: '2025-07-15',
+    replace: {
+      'process.env.NODE_ENV': JSON.stringify('production'),
     },
   },
 
@@ -40,6 +51,13 @@ export default defineNuxtConfig({
     ssr: {
       noExternal: ["vuetify"],
     },
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks: undefined,
+        },
+      },
+    },
   },
 
   css: [],
@@ -58,6 +76,12 @@ export default defineNuxtConfig({
       },
 
       styles: true,
+    },
+    vuetifyOptions: {
+      ssr: true,
+      treeshake: {
+        components: true,
+      },
     },
   },
 });

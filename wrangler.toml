@@ -1,0 +1,7 @@
+name = "vbdb2"
+compatibility_date = "2025-07-15"
+pages_build_output_dir = "dist"
+node_compat = true
+
+[build]
+command = "npm run build"
